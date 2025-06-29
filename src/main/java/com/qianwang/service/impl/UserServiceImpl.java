@@ -28,16 +28,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public ResponseResult register(RegisterDto registerDto) {
-        if (StringUtils.isBlank(registerDto.getUsername())){
-            return ResponseResult.errorResult(HttpCodeEnum.REGISTER_USERNAME_NOTNULL);
-        }
-        if(StringUtils.isBlank(registerDto.getPassword())){
-            return ResponseResult.errorResult(HttpCodeEnum.REGISTER_PASSWORD_NOTNULL);
-        }
-        User existUser = getOne(Wrappers.<User>lambdaQuery().eq(User::getUsername,registerDto.getUsername()));
-        if(existUser!=null){
-            return ResponseResult.errorResult(HttpCodeEnum.REGISTER_USERNAME_EXIST);
-        }
+            if (StringUtils.isBlank(registerDto.getUsername())){
+                return ResponseResult.errorResult(HttpCodeEnum.REGISTER_USERNAME_NOTNULL);
+            }
+            if(StringUtils.isBlank(registerDto.getPassword())){
+                return ResponseResult.errorResult(HttpCodeEnum.REGISTER_PASSWORD_NOTNULL);
+            }
+            User existUser = getOne(Wrappers.<User>lambdaQuery().eq(User::getUsername,registerDto.getUsername()));
+            if(existUser!=null){
+                return ResponseResult.errorResult(HttpCodeEnum.REGISTER_USERNAME_EXIST);
+            }
 
         String salt =java.util.UUID.randomUUID().toString().replaceAll("-","").substring(0,3);
 
@@ -83,4 +83,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return ResponseResult.okResult(map);
         }
     }
+
+
 }
