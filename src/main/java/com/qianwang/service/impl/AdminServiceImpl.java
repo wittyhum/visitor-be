@@ -3,20 +3,23 @@ package com.qianwang.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qianwang.DTO.AdminDto;
+import com.qianwang.DTO.ReservationDto;
+import com.qianwang.page.PageResultDto;
 import com.qianwang.common.ResponseResult;
 import com.qianwang.enums.HttpCodeEnum;
 import com.qianwang.mapper.AdminMapper;
 import com.qianwang.pojo.Admin;
-import com.qianwang.pojo.User;
 import com.qianwang.service.AdminService;
 import com.qianwang.utils.JwtUtil;
+import com.qianwang.page.PageResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
-import java.time.LocalDateTime;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +29,12 @@ import java.util.Map;
 @Slf4j
 public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements AdminService{
 
+
+    private final AdminMapper adminMapper;
+
+    public AdminServiceImpl(AdminMapper adminMapper) {
+        this.adminMapper = adminMapper;
+    }
 
     @Override
     public ResponseResult adminLogin(AdminDto adminDto) {
@@ -65,4 +74,17 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
             return ResponseResult.errorResult(HttpCodeEnum.LOGIN_OPERATE);
         }
     }
+
+    @Override
+    public PageResult getDateList(PageResultDto pageResultDto) {
+        // 构造 MP 分页对象
+        Page<ReservationDto> page = new Page<>(pageResultDto.getPage(), pageResultDto.getPageSize());
+        adminMapper.pageQuery(page, pageResultDto);
+
+        // 封装结果返回
+        return new PageResult(page.getTotal(), page.getRecords());
+    }
+
+
+
 }

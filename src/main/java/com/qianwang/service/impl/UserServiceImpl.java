@@ -1,5 +1,8 @@
 package com.qianwang.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qianwang.DTO.RegisterDto;
@@ -7,11 +10,16 @@ import com.qianwang.DTO.UserDto;
 import com.qianwang.common.ResponseResult;
 import com.qianwang.enums.HttpCodeEnum;
 import com.qianwang.mapper.UserMapper;
+import com.qianwang.pojo.Reservation;
 import com.qianwang.pojo.User;
 import com.qianwang.service.UserService;
 import com.qianwang.utils.JwtUtil;
+import com.qianwang.utils.RedisConstants;
+import com.qianwang.utils.RegexUtils;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
@@ -19,6 +27,9 @@ import org.springframework.util.DigestUtils;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static com.qianwang.utils.RedisConstants.*;
 
 @Service
 @Transactional
@@ -83,6 +94,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return ResponseResult.okResult(map);
         }
     }
+
+
 
 
 }
