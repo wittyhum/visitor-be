@@ -107,6 +107,7 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
         result.put("appointmentTime", appointmentTime);
         result.put("phone", phone);
         result.put("code", finalCode); // 可选：将验证码返回给前端用于调试
+        result.put("img",reservationDto.getImg());
         result.put("tar", TarEnum.getDescription(reservationDto.getTar()));
         result.put("voucher", reservationDto.isVoucher());
 
