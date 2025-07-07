@@ -9,9 +9,11 @@ import com.qianwang.common.ResponseResult;
 import com.qianwang.enums.HttpCodeEnum;
 import com.qianwang.mapper.AdminMapper;
 import com.qianwang.pojo.Admin;
+import com.qianwang.pojo.Reservation;
 import com.qianwang.service.AdminService;
 import com.qianwang.utils.JwtUtil;
 import com.qianwang.page.PageResult;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
@@ -85,6 +87,17 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         return new PageResult(page.getTotal(), page.getRecords());
     }
 
+    @Override
+    public void updateStatus(Integer status, Long id) {
+        Reservation reservation = Reservation.builder()
+                .id(id)
+                .status(status)
+                .build();
+        adminMapper.updateStatus(reservation);
+
+
+
+    }
 
 
 }

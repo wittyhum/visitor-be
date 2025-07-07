@@ -3,6 +3,7 @@ package com.qianwang.DTO;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,8 +27,11 @@ public class ReservationDto {
     @TableField("code")
     private String code;
 
+
+//    @DateTimeFormat(pattern = "yyyy-MM-dd") // 指定日期格式
     @JsonProperty("date_time")
-    @DateTimeFormat(pattern = "yyyy-MM-dd") // 指定日期格式
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @TableField("date_time")
     private LocalDateTime dateTime;
 
     @TableField("reason")
@@ -37,7 +41,7 @@ public class ReservationDto {
     private String address;
 
     @TableField("status")
-    private boolean status;
+    private Integer status;
 
     @TableField("img")
     private String img;

@@ -5,12 +5,15 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,6 +32,7 @@ public class Reservation {
     @TableField("code")
     private String code;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @TableField("date_time")
     private LocalDateTime dateTime;
 
@@ -39,7 +43,7 @@ public class Reservation {
     private String address;
 
     @TableField("status")
-    private boolean status;
+    private Integer status;
 
     @TableField("img")
     private String img;

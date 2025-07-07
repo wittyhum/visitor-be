@@ -97,7 +97,7 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
         Reservation existReservation = new Reservation();
         BeanUtil.copyProperties(reservationDto, existReservation);
         existReservation.setCode(finalCode);
-        existReservation.setStatus(false);
+        existReservation.setStatus(0);
         existReservation.setDays(reservationDto.getDays());
         save(existReservation);
 

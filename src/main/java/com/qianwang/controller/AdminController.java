@@ -9,21 +9,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/visitor")
+@RequestMapping("/visitor/admin")
 public class AdminController {
 
     @Autowired
     private AdminService adminService;
 
-    @PostMapping("/admin/login")
+    @PostMapping("/login")
     public ResponseResult adminLogin(@RequestBody AdminDto adminDto){
         return adminService.adminLogin(adminDto);
     }
 
-    @GetMapping("/admin/list")
+    @GetMapping("/list")
     public ResponseResult<PageResult> dateList(PageResultDto pageResultDto){
     PageResult pageResult = adminService.getDateList(pageResultDto);
     return ResponseResult.okResult(pageResult);
+    }
+
+
+    @PostMapping("/status/{status}")
+    public ResponseResult<String> updateStatus(@PathVariable Integer status, Long id){
+        adminService.updateStatus(status,id);
+        return ResponseResult.okResult("审批成功");
     }
 
 }

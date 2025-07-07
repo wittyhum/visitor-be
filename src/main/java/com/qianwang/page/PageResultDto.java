@@ -18,6 +18,6 @@ public class PageResultDto {
     @TableField("name")
     private String name;
 
-
+    private Integer status;
 
 }

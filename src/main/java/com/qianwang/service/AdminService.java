@@ -14,4 +14,6 @@ public interface AdminService extends IService<Admin> {
 
 
     PageResult getDateList(PageResultDto pageResultDto);
+
+    void updateStatus(Integer status, Long id);
 }
