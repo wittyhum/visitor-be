@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ReservationDto {
 
+    @TableField("user_id")
+    private Long userId;
 
     @TableField("name")
     private String name;

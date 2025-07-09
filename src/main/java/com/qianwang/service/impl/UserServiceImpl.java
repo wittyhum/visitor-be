@@ -37,6 +37,7 @@ import static com.qianwang.utils.RedisConstants.*;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
 
+
     @Override
     public ResponseResult register(RegisterDto registerDto) {
             if (StringUtils.isBlank(registerDto.getUsername())){

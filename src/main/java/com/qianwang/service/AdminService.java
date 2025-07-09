@@ -13,7 +13,20 @@ public interface AdminService extends IService<Admin> {
     ResponseResult adminLogin(AdminDto adminDto);
 
 
+
+    /**
+     * 查询所有用户预约信息
+     * @param pageResultDto
+     * @return
+     */
     PageResult getDateList(PageResultDto pageResultDto);
 
+
+    /**
+     * 根据状态判断是否审批，1为已审批，0为未审批
+     * @param status
+     * @param id
+     * @return
+     */
     void updateStatus(Integer status, Long id);
 }

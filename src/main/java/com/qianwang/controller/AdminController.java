@@ -20,6 +20,11 @@ public class AdminController {
         return adminService.adminLogin(adminDto);
     }
 
+    /**
+     * 查询所有用户预约信息
+     * @param pageResultDto
+     * @return
+     */
     @GetMapping("/list")
     public ResponseResult<PageResult> dateList(PageResultDto pageResultDto){
     PageResult pageResult = adminService.getDateList(pageResultDto);
@@ -27,6 +32,12 @@ public class AdminController {
     }
 
 
+    /**
+     * 根据状态判断是否审批，1为已审批，0为未审批
+     * @param status
+     * @param id
+     * @return
+     */
     @PostMapping("/status/{status}")
     public ResponseResult<String> updateStatus(@PathVariable Integer status, Long id){
         adminService.updateStatus(status,id);

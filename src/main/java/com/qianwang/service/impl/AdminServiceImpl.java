@@ -77,6 +77,12 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         }
     }
 
+
+    /**
+     * 查询所有用户预约信息
+     * @param pageResultDto
+     * @return
+     */
     @Override
     public PageResult getDateList(PageResultDto pageResultDto) {
         // 构造 MP 分页对象
@@ -87,6 +93,13 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         return new PageResult(page.getTotal(), page.getRecords());
     }
 
+
+    /**
+     * 根据状态判断是否审批，1为已审批，0为未审批
+     * @param status
+     * @param id
+     * @return
+     */
     @Override
     public void updateStatus(Integer status, Long id) {
         Reservation reservation = Reservation.builder()

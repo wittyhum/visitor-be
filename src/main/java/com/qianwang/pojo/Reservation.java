@@ -23,6 +23,9 @@ public class Reservation {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    @TableField("user_id")
+    private Long userId;
+
     @TableField("name")
     private String name;
 

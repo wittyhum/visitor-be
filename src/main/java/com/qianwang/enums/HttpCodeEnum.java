@@ -8,6 +8,11 @@ public enum HttpCodeEnum {
     // 登录段1~20
     NEED_LOGIN(1,"需要登录后操作"),
     LOGIN_PASSWORD_ERROR(2,"密码错误"),
+    USER_NOT_LOGIN(3,"用户未登录"),
+    SYSTEM_ERROR(4,"登录失败：返回数据格式错误"),
+    TOKEN_ERROR(5,"TOKEN失效或不存在"),
+    LOGOUT_FAILED(6,"登录失败"),
+
     //注册段20~30
     REGISTER_USERNAME_NOTNULL(21,"用户名不能为空"),
     REGISTER_USERNAME_EXIST(22,"用户名已存在"),

@@ -11,6 +11,7 @@ import com.qianwang.enums.TarEnum;
 import com.qianwang.mapper.ReservationMapper;
 import com.qianwang.pojo.Reservation;
 import com.qianwang.service.ReservationService;
+import com.qianwang.utils.LoginContext;
 import com.qianwang.utils.RegexUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,11 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
     private StringRedisTemplate stringRedisTemplate;
 
 
+    /**
+     * 用户预约功能
+     * @param reservationDto
+     * @return
+     */
     @Override
     public ResponseResult appointment(ReservationDto reservationDto) {
 
@@ -92,14 +98,19 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
             return ResponseResult.errorResult(HttpCodeEnum.PHONE_ALREADY_RESERVED);
         }
 
+        //保存当前登录用户ID
+        Long currentUserId = LoginContext.getCurrentUserId();
 
         // 6. 保存预约信息
         Reservation existReservation = new Reservation();
         BeanUtil.copyProperties(reservationDto, existReservation);
+        existReservation.setUserId(currentUserId);
         existReservation.setCode(finalCode);
         existReservation.setStatus(0);
         existReservation.setDays(reservationDto.getDays());
         save(existReservation);
+
+
 
         // 7. 返回结果
         Map<String, Object> result = new HashMap<>();
@@ -115,6 +126,21 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
         return ResponseResult.okResult(result);
     }
 
+
+    /**
+     * 查看自己预约的信息
+     * @return
+     */
+    @Override
+    public ResponseResult<List<Reservation>> getMessage() {
+        Long userId = LoginContext.getCurrentUserId();
+        if (userId == null){
+            return ResponseResult.errorResult(HttpCodeEnum.USER_NOT_LOGIN);
+        }
+
+        List<Reservation> reservations = list(Wrappers.<Reservation>lambdaQuery().eq(Reservation::getUserId,userId));
+        return ResponseResult.okResult(reservations);
+    }
 
 
 }
