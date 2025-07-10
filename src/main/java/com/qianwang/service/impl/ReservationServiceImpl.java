@@ -98,13 +98,11 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
             return ResponseResult.errorResult(HttpCodeEnum.PHONE_ALREADY_RESERVED);
         }
 
-        //保存当前登录用户ID
-        Long currentUserId = LoginContext.getCurrentUserId();
+
 
         // 6. 保存预约信息
         Reservation existReservation = new Reservation();
         BeanUtil.copyProperties(reservationDto, existReservation);
-        existReservation.setUserId(currentUserId);
         existReservation.setCode(finalCode);
         existReservation.setStatus(0);
         existReservation.setDays(reservationDto.getDays());
@@ -119,7 +117,7 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
         result.put("phone", phone);
         result.put("code", finalCode); // 可选：将验证码返回给前端用于调试
         result.put("img",reservationDto.getImg());
-        result.put("tar", TarEnum.getDescription(reservationDto.getTar()));
+        result.put("tar", TarEnum.getDescription(Integer.parseInt(reservationDto.getTar())));
         result.put("voucher", reservationDto.isVoucher());
 
 
@@ -138,8 +136,9 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
             return ResponseResult.errorResult(HttpCodeEnum.USER_NOT_LOGIN);
         }
 
-        List<Reservation> reservations = list(Wrappers.<Reservation>lambdaQuery().eq(Reservation::getUserId,userId));
-        return ResponseResult.okResult(reservations);
+//        List<Reservation> reservations = list(Wrappers.<Reservation>lambdaQuery().eq(Reservation::getUserId,userId));
+//        return ResponseResult.okResult(reservations);
+        return ResponseResult.okResult(1);
     }
 
 

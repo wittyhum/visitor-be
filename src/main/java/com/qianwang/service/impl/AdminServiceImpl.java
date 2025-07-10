@@ -66,9 +66,9 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
                 return ResponseResult.errorResult(HttpCodeEnum.LOGIN_PASSWORD_ERROR);
             }
 
-            String jwt = JwtUtil.getToken(dbAdmin.getId());
+//            String jwt = JwtUtil.getToken(dbAdmin.getId());
             Map<String,Object> map = new HashMap<>();
-            map.put("token",jwt);
+//            map.put("token",jwt);
             dbAdmin.setPassword("");
             map.put("admin",dbAdmin);
             return ResponseResult.okResult(map);

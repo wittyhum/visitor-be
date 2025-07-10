@@ -17,8 +17,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ReservationDto {
 
-    @TableField("user_id")
-    private Long userId;
 
     @TableField("name")
     private String name;
@@ -49,7 +47,7 @@ public class ReservationDto {
     private String img;
 
     @TableField("tar")
-    private int tar;
+    private String tar;
 
     // 命名识别不到
     @TableField("voucher")

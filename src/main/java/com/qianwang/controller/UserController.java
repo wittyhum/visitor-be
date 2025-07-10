@@ -3,8 +3,12 @@ package com.qianwang.controller;
 
 import com.qianwang.DTO.RegisterDto;
 import com.qianwang.DTO.ReservationDto;
+import com.qianwang.DTO.User;
 import com.qianwang.DTO.UserDto;
+import com.qianwang.VO.UserVo;
 import com.qianwang.common.ResponseResult;
+import com.qianwang.common.constant.JwtClaimsConstant;
+import com.qianwang.common.properties.JwtProperties;
 import com.qianwang.enums.HttpCodeEnum;
 import com.qianwang.pojo.Reservation;
 import com.qianwang.service.ReservationService;
@@ -15,17 +19,21 @@ import com.qianwang.utils.LoginContext;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @RestController
 @RequestMapping("/visitor/user")
 public class UserController {
@@ -37,6 +45,8 @@ public class UserController {
     private ReservationService reservationService;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private JwtProperties jwtProperties;
 
 
     /**
@@ -55,28 +65,33 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public ResponseResult login(@RequestBody UserDto userDto, HttpServletResponse response) {
-        ResponseResult result = userService.login(userDto);
+    public Result<UserVo> login(@RequestBody UserDto userDto) throws AccountNotFoundException {
+        log.info("用户登录：{}" , userDto);
+        User user =userService.login(userDto);
 
-        if (result.getCode() == HttpCodeEnum.SUCCESS.getCode()) {
-            Object data = result.getData();
-            if (data instanceof Map) {
-                Map<String, Object> dataMap = (Map<String, Object>) data;
-                String token = (String) dataMap.get("token");
+        //登录成功后，生成jwt令牌
+        Map<String, Object> claims = new HashMap<>();
+        //添加user ID 到声明中
+        claims.put(JwtClaimsConstant.EMP_ID, user.getId());
+        String token = JwtUtil.createJWT(
+                // 密钥
+                jwtProperties.getAdminSecretKey(),
+                // 密钥有效期
+                jwtProperties.getAdminTtl(),
+                // 声明
+                claims);
 
-                if (token != null) {
-                    response.setHeader("Authorization", "Bearer " + token);
-                } else {
-                    // token 不存在的情况处理
-                    return ResponseResult.errorResult(HttpCodeEnum.TOKEN_ERROR);
-                }
-            } else {
-                // data 不是 Map 类型，说明格式不对
-                return ResponseResult.errorResult(HttpCodeEnum.SYSTEM_ERROR, "登录失败：返回数据格式错误");
-            }
-        }
+        UserVo userVo = UserVo.builder()
+                // 用户 ID
+                .id(user.getId())
+                // 用户名
+                .userName(user.getUsername())
+                // 令牌
+                .token(token)
+                .build();
 
-        return result;
+        return Result.success(userVo);
+
     }
 
 
@@ -89,8 +104,8 @@ public class UserController {
             // 将 Token 加入黑名单，有效期与 Token 剩余时间一致
             //从JWT token取出负载信息（包含token各种声明，用户ID，签发时间issuedAt，过期时间expiration，主题subject等）
             // 从声明中取出token过期时间，返回类型为date，再获取这个对象的时间戳，最后减去当前时间
-            long expiration = JwtUtil.getClaimsBody(token).getExpiration().getTime() - System.currentTimeMillis();
-            stringRedisTemplate.opsForValue().set("logout:" + token, "true", expiration, TimeUnit.MILLISECONDS);
+//            long expiration = JwtUtil.getClaimsBody(token).getExpiration().getTime() - System.currentTimeMillis();
+//            stringRedisTemplate.opsForValue().set("logout:" + token, "true", expiration, TimeUnit.MILLISECONDS);
             LoginContext.clear(); // 清空 ThreadLocal
             return ResponseResult.okResult("退出成功");
         }

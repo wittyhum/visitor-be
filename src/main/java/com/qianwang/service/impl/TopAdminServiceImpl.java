@@ -54,9 +54,9 @@ public class TopAdminServiceImpl extends ServiceImpl<TopAdminMapper, TopAdmin> i
                 return ResponseResult.errorResult(HttpCodeEnum.LOGIN_PASSWORD_ERROR);
             }
 
-            String jwt = JwtUtil.getToken(dbTopAdmin.getId());
+//            String jwt = JwtUtil.getToken(dbTopAdmin.getId());
             Map<String,Object> map = new HashMap<>();
-            map.put("token",jwt);
+//            map.put("token",jwt);
             dbTopAdmin.setPassword("");
             map.put("topAdmin",dbTopAdmin);
             return ResponseResult.okResult(map);
