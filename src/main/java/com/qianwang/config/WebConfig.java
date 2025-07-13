@@ -19,7 +19,10 @@ public class WebConfig extends WebMvcConfigurationSupport {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/visitor/user/**")
-                .excludePathPatterns("/visitor/user/login");
+                .excludePathPatterns("/visitor/user/login")
+                .excludePathPatterns("/visitor/user/register");
+//        不能拦截/visitor/user/register注册接口
+
 //                .excludePathPatterns("/visitor/user/register")
 //                .excludePathPatterns("/visitor/user/logout"); // 可选：退出登录接口无需拦截
     }

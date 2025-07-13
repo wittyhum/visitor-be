@@ -6,15 +6,21 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qianwang.DTO.ReservationDto;
 import com.qianwang.common.ResponseResult;
+import com.qianwang.common.constant.JwtClaimsConstant;
+import com.qianwang.common.properties.JwtProperties;
 import com.qianwang.enums.HttpCodeEnum;
 import com.qianwang.enums.TarEnum;
 import com.qianwang.mapper.ReservationMapper;
 import com.qianwang.pojo.Reservation;
 import com.qianwang.service.ReservationService;
+import com.qianwang.utils.JwtUtil;
 import com.qianwang.utils.LoginContext;
 import com.qianwang.utils.RegexUtils;
+import io.jsonwebtoken.Claims;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +32,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.qianwang.utils.RedisConstants.LOGIN_CODE_KEY;
-import static com.qianwang.utils.RedisConstants.LOGIN_CODE_TTL;
 
 
 @Service
@@ -37,15 +42,19 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private JwtProperties jwtProperties;
 
 
     /**
      * 用户预约功能
+     *
      * @param reservationDto
+     * @param request
      * @return
      */
     @Override
-    public ResponseResult appointment(ReservationDto reservationDto) {
+    public ResponseResult appointment(ReservationDto reservationDto, HttpServletRequest request) {
 
         String phone = reservationDto.getPhone();
 
@@ -100,10 +109,19 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
 
 
 
+        String token = request.getHeader(jwtProperties.getAdminTokenName());
+
+        log.info("jwt校验:{}", token);
+        Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
+        Long userId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
+        log.info("当前用户id：{}", userId);
+
+
         // 6. 保存预约信息
         Reservation existReservation = new Reservation();
         BeanUtil.copyProperties(reservationDto, existReservation);
         existReservation.setCode(finalCode);
+        existReservation.setUserId(userId);
         existReservation.setStatus(0);
         existReservation.setDays(reservationDto.getDays());
         save(existReservation);
@@ -130,15 +148,20 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
      * @return
      */
     @Override
-    public ResponseResult<List<Reservation>> getMessage() {
-        Long userId = LoginContext.getCurrentUserId();
+    public ResponseResult<List<Reservation>> getMessage(HttpServletRequest request) {
+        String token = request.getHeader(jwtProperties.getAdminTokenName());
+
+        log.info("jwt校验:{}", token);
+        Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
+        Long userId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
+        log.info("当前用户id：{}", userId);
         if (userId == null){
             return ResponseResult.errorResult(HttpCodeEnum.USER_NOT_LOGIN);
         }
 
-//        List<Reservation> reservations = list(Wrappers.<Reservation>lambdaQuery().eq(Reservation::getUserId,userId));
-//        return ResponseResult.okResult(reservations);
-        return ResponseResult.okResult(1);
+        List<Reservation> reservations = list(Wrappers.<Reservation>lambdaQuery().eq(Reservation::getUserId,userId));
+        return ResponseResult.okResult(reservations);
+
     }
 
 

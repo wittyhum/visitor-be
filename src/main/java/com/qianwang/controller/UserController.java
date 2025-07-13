@@ -120,8 +120,8 @@ public class UserController {
      * @return
      */
     @PostMapping("/date")
-    public ResponseResult date(@RequestBody ReservationDto reservationDto){
-        return reservationService.appointment(reservationDto);
+    public ResponseResult date(@RequestBody ReservationDto reservationDto,HttpServletRequest request){
+        return reservationService.appointment(reservationDto, request);
     }
 
     /**
@@ -140,8 +140,8 @@ public class UserController {
      * @return
      */
     @GetMapping("/message")
-    public ResponseResult<List<Reservation>> getMessage(){
-        return reservationService.getMessage();
+    public ResponseResult<List<Reservation>> getMessage(HttpServletRequest request){
+        return reservationService.getMessage(request);
     }
 
 

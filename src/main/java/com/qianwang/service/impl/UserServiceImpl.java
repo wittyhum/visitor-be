@@ -65,6 +65,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String username = userDto.getUsername();
         String password = userDto.getPassword();
 
+            User dbUser = getOne(Wrappers.<User>lambdaQuery().eq(User::getUsername,userDto.getUsername()));
+            String salt = dbUser.getSalt();
+            String pswd = DigestUtils.md5DigestAsHex((password+salt).getBytes());
+
+
         //1、根据用户名查询数据库中的数据
         com.qianwang.DTO.User user = userMapper.getByUsername(username);
 
@@ -76,7 +81,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         //密码比对
         // TODO 后期需要进行md5加密，然后再进行比对
-        if (!password.equals(user.getPassword())) {
+        if (!pswd.equals(user.getPassword())) {
             //密码错误
             throw new PasswordErrorException(ExceptionConstant.PASSWORD_ERROR);
         }
