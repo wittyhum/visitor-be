@@ -7,12 +7,14 @@ import com.qianwang.common.ResponseResult;
 import com.qianwang.pojo.Admin;
 import com.qianwang.page.PageResult;
 
+import javax.security.auth.login.AccountNotFoundException;
+
 public interface AdminService extends IService<Admin> {
 
 
-    ResponseResult adminLogin(AdminDto adminDto);
+//    ResponseResult adminLogin(AdminDto adminDto);
 
-
+    Admin adminLogin(AdminDto adminDto) throws AccountNotFoundException;
 
     /**
      * 查询所有用户预约信息
@@ -29,4 +31,6 @@ public interface AdminService extends IService<Admin> {
      * @return
      */
     void updateStatus(Integer status, Long id);
+
+
 }

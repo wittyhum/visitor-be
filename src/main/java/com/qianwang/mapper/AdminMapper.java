@@ -8,6 +8,7 @@ import com.qianwang.pojo.Admin;
 import com.qianwang.pojo.Reservation;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface AdminMapper extends BaseMapper<Admin> {
@@ -18,4 +19,6 @@ public interface AdminMapper extends BaseMapper<Admin> {
 
     void updateStatus(Reservation reservation);
 
+    @Select("select * from admin where admin_name = #{adminName}")
+    Admin getByAdminName(String adminName);
 }

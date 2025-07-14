@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TopAdminDto {
 
-    private String username;
+    private String adminName;
 
     private String password;
 
