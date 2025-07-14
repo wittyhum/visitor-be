@@ -1,6 +1,7 @@
 package com.qianwang.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.qianwang.DTO.CodeDto;
 import com.qianwang.DTO.ReservationDto;
 import com.qianwang.common.ResponseResult;
 import com.qianwang.pojo.Reservation;
@@ -25,6 +26,8 @@ public interface ReservationService extends IService<Reservation> {
      * 查看自己预约的信息
      * @return
      */
-    ResponseResult<List<Reservation>> getMessage(HttpServletRequest request);
+    ResponseResult<List<Reservation>> getMessage(Long userId);
 
+
+    ResponseResult<String> getCode(CodeDto codeDto);
 }

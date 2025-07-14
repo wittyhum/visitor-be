@@ -1,10 +1,7 @@
 package com.qianwang.controller;
 
 
-import com.qianwang.DTO.RegisterDto;
-import com.qianwang.DTO.ReservationDto;
-import com.qianwang.DTO.User;
-import com.qianwang.DTO.UserDto;
+import com.qianwang.DTO.*;
 import com.qianwang.VO.UserVo;
 import com.qianwang.common.ResponseResult;
 import com.qianwang.common.constant.JwtClaimsConstant;
@@ -16,6 +13,7 @@ import com.qianwang.service.UserService;
 import com.qianwang.utils.AliOssUtil;
 import com.qianwang.utils.JwtUtil;
 import com.qianwang.utils.LoginContext;
+import io.jsonwebtoken.Claims;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -112,6 +110,12 @@ public class UserController {
         return ResponseResult.errorResult(HttpCodeEnum.LOGOUT_FAILED);
     }
 
+    @PostMapping("/code")
+    public ResponseResult<String> getCode(@RequestBody CodeDto codeDto) {
+        return reservationService.getCode(codeDto);
+    }
+
+
 
 
     /**
@@ -141,7 +145,10 @@ public class UserController {
      */
     @GetMapping("/message")
     public ResponseResult<List<Reservation>> getMessage(HttpServletRequest request){
-        return reservationService.getMessage(request);
+        String token = request.getHeader(jwtProperties.getAdminTokenName());
+        Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(),token);
+        Long userId = Long.valueOf(claims.get("id").toString());
+        return reservationService.getMessage(userId);
     }
 
 

@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.qianwang.DTO.CodeDto;
 import com.qianwang.DTO.ReservationDto;
 import com.qianwang.common.ResponseResult;
 import com.qianwang.common.constant.JwtClaimsConstant;
@@ -56,7 +57,94 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
     @Override
     public ResponseResult appointment(ReservationDto reservationDto, HttpServletRequest request) {
 
-        String phone = reservationDto.getPhone();
+//        String phone = reservationDto.getPhone();
+//
+//        // 1. 校验手机号格式
+//        if (RegexUtils.isPhoneInvalid(phone)) {
+//            return ResponseResult.errorResult(HttpCodeEnum.PHONE_FORMAT_ERROR);
+//        }
+//
+//        String codeKey = LOGIN_CODE_KEY + phone;
+//
+//        // 2. 获取 Redis 中的验证码和剩余时间
+//        String cacheCode = stringRedisTemplate.opsForValue().get(codeKey);
+//        Long remainingTtl = stringRedisTemplate.getExpire(codeKey, TimeUnit.SECONDS);
+//
+//        String finalCode;
+//
+//        // 3. 判断是否需要生成新验证码
+//        if (cacheCode == null || remainingTtl == null || remainingTtl <= 0) {
+//            // 验证码不存在 或 已过期 → 生成新验证码
+//            finalCode = RandomUtil.randomNumbers(6);
+//            stringRedisTemplate.opsForValue().set(codeKey, finalCode, 1, TimeUnit.MINUTES);
+//            log.info("新验证码已生成：{}", finalCode);
+//        } else {
+//            // 验证码仍然有效 → 使用已有验证码
+//            finalCode = cacheCode;
+//            log.info("使用已有验证码：{}，剩余时间：{} 秒", finalCode, remainingTtl);
+//        }
+//
+//        // 4. 校验用户提交的验证码
+//        String voCode = reservationDto.getCode();
+//        if (voCode == null || !voCode.equals(finalCode)) {
+//            return ResponseResult.errorResult(HttpCodeEnum.CODE_ERROR);
+//        }
+
+        // 5. 校验预约时间
+        LocalDateTime appointmentTime = reservationDto.getDateTime();
+        if (appointmentTime == null) {
+            return ResponseResult.errorResult(HttpCodeEnum.APPOINTMENT_TIME_NOT_NULL);
+        }
+        if (appointmentTime.isBefore(LocalDateTime.now())) {
+            return ResponseResult.errorResult(HttpCodeEnum.APPOINTMENT_TIME_INVALID);
+        }
+        LocalDateTime maxAppointmentDate = LocalDateTime.now().plusDays(14);
+        if (appointmentTime.isAfter(maxAppointmentDate)) {
+            return ResponseResult.errorResult(HttpCodeEnum.APPOINTMENT_TIME_TOO_FAR);
+        }
+
+        Reservation existingReservation = query().eq("phone", reservationDto.getPhone()).one();
+        if (existingReservation != null) {
+            return ResponseResult.errorResult(HttpCodeEnum.PHONE_ALREADY_RESERVED);
+        }
+
+
+        String token = request.getHeader(jwtProperties.getAdminTokenName());
+
+        log.info("jwt校验:{}", token);
+        Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
+        Long userId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
+        log.info("当前用户id：{}", userId);
+
+
+        // 6. 保存预约信息
+        Reservation existReservation = new Reservation();
+        BeanUtil.copyProperties(reservationDto, existReservation);
+//        existReservation.setCode(finalCode);
+        existReservation.setUserId(userId);
+        existReservation.setStatus(0);
+        existReservation.setDays(reservationDto.getDays());
+        save(existReservation);
+
+
+        // 7. 返回结果
+        Map<String, Object> result = new HashMap<>();
+        result.put("message", "预约成功");
+        result.put("appointmentTime", appointmentTime);
+        result.put("phone", reservationDto.getPhone());
+        result.put("code", reservationDto.getCode()); // 可选：将验证码返回给前端用于调试
+        result.put("img", reservationDto.getImg());
+        result.put("tar", TarEnum.getDescription(Integer.parseInt(reservationDto.getTar())));
+        result.put("voucher", reservationDto.isVoucher());
+
+
+        return ResponseResult.okResult(result);
+    }
+
+
+    @Override
+    public ResponseResult<String> getCode(CodeDto codeDto) {
+        String phone = codeDto.getPhone();
 
         // 1. 校验手机号格式
         if (RegexUtils.isPhoneInvalid(phone)) {
@@ -75,7 +163,7 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
         if (cacheCode == null || remainingTtl == null || remainingTtl <= 0) {
             // 验证码不存在 或 已过期 → 生成新验证码
             finalCode = RandomUtil.randomNumbers(6);
-            stringRedisTemplate.opsForValue().set(codeKey, finalCode, 1, TimeUnit.MINUTES);
+            stringRedisTemplate.opsForValue().set(codeKey, finalCode, 5, TimeUnit.MINUTES);
             log.info("新验证码已生成：{}", finalCode);
         } else {
             // 验证码仍然有效 → 使用已有验证码
@@ -84,85 +172,34 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
         }
 
         // 4. 校验用户提交的验证码
-        String voCode = reservationDto.getCode();
+        String voCode = codeDto.getCode();
         if (voCode == null || !voCode.equals(finalCode)) {
             return ResponseResult.errorResult(HttpCodeEnum.CODE_ERROR);
         }
-
-        // 5. 校验预约时间
-        LocalDateTime appointmentTime = reservationDto.getDateTime();
-        if (appointmentTime == null) {
-            return ResponseResult.errorResult(HttpCodeEnum.APPOINTMENT_TIME_NOT_NULL);
-        }
-        if (appointmentTime.isBefore(LocalDateTime.now())) {
-            return ResponseResult.errorResult(HttpCodeEnum.APPOINTMENT_TIME_INVALID);
-        }
-        LocalDateTime maxAppointmentDate = LocalDateTime.now().plusDays(14);
-        if (appointmentTime.isAfter(maxAppointmentDate)) {
-            return ResponseResult.errorResult(HttpCodeEnum.APPOINTMENT_TIME_TOO_FAR);
-        }
-
-        Reservation existingReservation = query().eq("phone", phone).one();
-        if (existingReservation != null) {
-            return ResponseResult.errorResult(HttpCodeEnum.PHONE_ALREADY_RESERVED);
-        }
-
-
-
-        String token = request.getHeader(jwtProperties.getAdminTokenName());
-
-        log.info("jwt校验:{}", token);
-        Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
-        Long userId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
-        log.info("当前用户id：{}", userId);
-
-
-        // 6. 保存预约信息
-        Reservation existReservation = new Reservation();
-        BeanUtil.copyProperties(reservationDto, existReservation);
-        existReservation.setCode(finalCode);
-        existReservation.setUserId(userId);
-        existReservation.setStatus(0);
-        existReservation.setDays(reservationDto.getDays());
-        save(existReservation);
-
-
-
-        // 7. 返回结果
-        Map<String, Object> result = new HashMap<>();
-        result.put("message", "预约成功");
-        result.put("appointmentTime", appointmentTime);
-        result.put("phone", phone);
-        result.put("code", finalCode); // 可选：将验证码返回给前端用于调试
-        result.put("img",reservationDto.getImg());
-        result.put("tar", TarEnum.getDescription(Integer.parseInt(reservationDto.getTar())));
-        result.put("voucher", reservationDto.isVoucher());
-
-
-        return ResponseResult.okResult(result);
+        codeDto.setCode(finalCode);
+        return ResponseResult.okResult(codeDto);
     }
 
 
     /**
      * 查看自己预约的信息
+     *
      * @return
      */
     @Override
-    public ResponseResult<List<Reservation>> getMessage(HttpServletRequest request) {
-        String token = request.getHeader(jwtProperties.getAdminTokenName());
+    public ResponseResult<List<Reservation>> getMessage(Long userId) {
 
-        log.info("jwt校验:{}", token);
-        Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
-        Long userId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
-        log.info("当前用户id：{}", userId);
-        if (userId == null){
+        if (userId == null) {
             return ResponseResult.errorResult(HttpCodeEnum.USER_NOT_LOGIN);
         }
 
-        List<Reservation> reservations = list(Wrappers.<Reservation>lambdaQuery().eq(Reservation::getUserId,userId));
+        List<Reservation> reservations = list(Wrappers.<Reservation>lambdaQuery().eq(Reservation::getUserId, userId));
         return ResponseResult.okResult(reservations);
 
+
     }
+
+
 
 
 }
