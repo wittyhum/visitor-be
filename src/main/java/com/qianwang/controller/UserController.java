@@ -94,21 +94,45 @@ public class UserController {
 
 
 
+//    @PostMapping("/logout")
+//    public ResponseResult logout(HttpServletRequest request) {
+//        String authHeader = request.getHeader("Authorization");
+//        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+//            String token = authHeader.substring(7);
+//            // 将 Token 加入黑名单，有效期与 Token 剩余时间一致
+//            //从JWT token取出负载信息（包含token各种声明，用户ID，签发时间issuedAt，过期时间expiration，主题subject等）
+//            // 从声明中取出token过期时间，返回类型为date，再获取这个对象的时间戳，最后减去当前时间
+////            long expiration = JwtUtil.getClaimsBody(token).getExpiration().getTime() - System.currentTimeMillis();
+////            stringRedisTemplate.opsForValue().set("logout:" + token, "true", expiration, TimeUnit.MILLISECONDS);
+//            LoginContext.clear(); // 清空 ThreadLocal
+//            return ResponseResult.okResult("退出成功");
+//        }
+//        return ResponseResult.errorResult(HttpCodeEnum.LOGOUT_FAILED);
+//    }
+
     @PostMapping("/logout")
     public ResponseResult logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            // 将 Token 加入黑名单，有效期与 Token 剩余时间一致
-            //从JWT token取出负载信息（包含token各种声明，用户ID，签发时间issuedAt，过期时间expiration，主题subject等）
-            // 从声明中取出token过期时间，返回类型为date，再获取这个对象的时间戳，最后减去当前时间
-//            long expiration = JwtUtil.getClaimsBody(token).getExpiration().getTime() - System.currentTimeMillis();
-//            stringRedisTemplate.opsForValue().set("logout:" + token, "true", expiration, TimeUnit.MILLISECONDS);
-            LoginContext.clear(); // 清空 ThreadLocal
+
+            // 解析 token 获取声明信息
+            Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
+            // 计算剩余有效期
+            Date expirationDate = claims.getExpiration();
+            long expiration = expirationDate.getTime() - System.currentTimeMillis();
+
+            // 将 token 加入黑名单，设置与原 token 相同的有效期
+            stringRedisTemplate.opsForValue().set("logout:" + token, "true", expiration, TimeUnit.MILLISECONDS);
+
+            // 清除 ThreadLocal 中的登录信息
+            LoginContext.clear();
+
             return ResponseResult.okResult("退出成功");
         }
         return ResponseResult.errorResult(HttpCodeEnum.LOGOUT_FAILED);
     }
+
 
     @PostMapping("/code")
     public ResponseResult<String> getCode(@RequestBody CodeDto codeDto) {

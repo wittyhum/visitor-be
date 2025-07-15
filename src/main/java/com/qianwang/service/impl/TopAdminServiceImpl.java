@@ -78,7 +78,7 @@ public class TopAdminServiceImpl extends ServiceImpl<TopAdminMapper, TopAdmin> i
 
     @Override
     public TopAdmin adminLogin(TopAdminDto topAdminDto) throws AccountNotFoundException {
-        String adminName = topAdminDto.getAdminName();
+        String adminName = topAdminDto.getUsername();
         String password = topAdminDto.getPassword();
 
 

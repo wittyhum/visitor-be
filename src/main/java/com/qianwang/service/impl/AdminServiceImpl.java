@@ -86,7 +86,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
 
     public Admin adminLogin(AdminDto adminDto) throws AccountNotFoundException {
 
-        String adminName = adminDto.getAdminName();
+        String adminName = adminDto.getUsername();
         String password = adminDto.getPassword();
 
 
