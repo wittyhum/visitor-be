@@ -12,8 +12,8 @@ import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface AdminMapper extends BaseMapper<Admin> {
-    Page<ReservationDto> pageQuery(
-            @Param("page") Page<ReservationDto> page,
+    Page<Reservation> pageQuery(
+            @Param("page") Page<Reservation> page,
             @Param("dto") PageResultDto pageResultDto
     );
 

@@ -103,10 +103,10 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
             return ResponseResult.errorResult(HttpCodeEnum.APPOINTMENT_TIME_TOO_FAR);
         }
 
-        Reservation existingReservation = query().eq("phone", reservationDto.getPhone()).one();
-        if (existingReservation != null) {
-            return ResponseResult.errorResult(HttpCodeEnum.PHONE_ALREADY_RESERVED);
-        }
+//        Reservation existingReservation = query().eq("phone", reservationDto.getPhone()).one();
+//        if (existingReservation != null) {
+//            return ResponseResult.errorResult(HttpCodeEnum.PHONE_ALREADY_RESERVED);
+//        }
 
 
         String token = request.getHeader(jwtProperties.getAdminTokenName());
@@ -150,6 +150,12 @@ public class ReservationServiceImpl extends ServiceImpl<ReservationMapper, Reser
         if (RegexUtils.isPhoneInvalid(phone)) {
             return ResponseResult.errorResult(HttpCodeEnum.PHONE_FORMAT_ERROR);
         }
+
+        Reservation existingReservation = query().eq("phone", codeDto.getPhone()).one();
+        if (existingReservation != null) {
+            return ResponseResult.errorResult(HttpCodeEnum.PHONE_ALREADY_RESERVED);
+        }
+
 
         String codeKey = LOGIN_CODE_KEY + phone;
 

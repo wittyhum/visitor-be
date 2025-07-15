@@ -4,7 +4,7 @@
 <mapper namespace="com.qianwang.mapper.AdminMapper">
 
 
-    <select id="pageQuery" resultType="com.qianwang.DTO.ReservationDto">
+    <select id="pageQuery" resultType="com.qianwang.pojo.Reservation">
         SELECT *
         FROM date
         <where>

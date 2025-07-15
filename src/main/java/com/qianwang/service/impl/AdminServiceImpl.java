@@ -113,7 +113,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     @Override
     public PageResult getDateList(PageResultDto pageResultDto) {
         // 构造 MP 分页对象
-        Page<ReservationDto> page = new Page<>(pageResultDto.getPage(), pageResultDto.getPageSize());
+        Page<Reservation> page = new Page<>(pageResultDto.getPage(), pageResultDto.getPageSize());
         adminMapper.pageQuery(page, pageResultDto);
 
         // 封装结果返回
