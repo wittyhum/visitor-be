@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public class AliOssUtil {
 
-    public static final String ALI_DOMAIN = "https://qjw-00.oss-cn-guangzhou.aliyuncs.com/";
+    public static final String ALI_DOMAIN = "";
 
     public static String uploadImage(MultipartFile file) throws IOException {
         //生成文件名
@@ -24,7 +24,7 @@ public class AliOssUtil {
         String accessKeySecret = "";
         //OSS客户端对象
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
-        ossClient.putObject("qjw-00", fileName, file.getInputStream());
+        ossClient.putObject("", fileName, file.getInputStream());
         ossClient.shutdown();
         return ALI_DOMAIN + fileName;
 
