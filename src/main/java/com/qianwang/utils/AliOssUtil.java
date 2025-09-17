@@ -19,9 +19,9 @@ public class AliOssUtil {
         String uuid = UUID.randomUUID().toString().replace("-", "");
         String fileName = uuid + ext;
         //地域节点
-        String endpoint = "http://oss-cn-guangzhou.aliyuncs.com";
-        String accessKeyId = "LTAI5tJvsit6vpz4NSkMcgJw";
-        String accessKeySecret = "n92VlZwlMp02hJV5LeXaiVtkBS2o3L";
+        String endpoint = "";
+        String accessKeyId = "";
+        String accessKeySecret = "";
         //OSS客户端对象
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
         ossClient.putObject("qjw-00", fileName, file.getInputStream());
